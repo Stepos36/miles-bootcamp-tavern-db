@@ -5,11 +5,25 @@ CREATE TABLE taverns
 (
     tavern_id INT NOT NULL AUTO_INCREMENT,
     name VARCHAR(250) NOT NULL,
-    location_id INT NOT NULL references locations(location_id),
-    owner_id INT NOT NULL references users(user_id),
+    location_id INT NOT NULL,
+    owner_id INT NOT NULL,
     floors_quantity INT NOT NULL,
     primary key(tavern_id)
 );
+
+INSERT INTO taverns(name,location_id, owner_id, floors_quantity)
+VALUES ('Moe''s', 1, 1, 2), ('The Bada Bing!', 2, 2, 2), ('The Drunken Clam', 3, 3, 1), ('Paddy’s Pub', 4, 4, 3), ('The Peach Pit After Dark', 5, 5, 2);
+
+CREATE TABLE roles
+(
+    role_id INT NOT NULL AUTO_INCREMENT,
+    role_name VARCHAR(250) NOT NULL,
+    description VARCHAR(3500) NOT NULL,
+    primary key(role_id)
+);
+
+INSERT INTO roles(role_name, description) 
+VALUES ('Owner', 'Be the boss, watch everything, manage employees, count money, get free drinks at the bar'), ('Bartender', 'Sell drinks, watch the counter, clean glasses and the bar stand'), ('Waitor', 'Make sure customers are satisfied, carry plates and drinks'), ('Busser', 'Clean the tables, wash the dishes, mop the floor'), ('Bodyguard', 'Kick people out if necessary'), ('Room manager', 'Check-ins, check-outs, room service and other services');
 
 CREATE TABLE users
 (
@@ -21,13 +35,20 @@ CREATE TABLE users
     primary key(user_id)
 );
 
-CREATE TABLE roles
+INSERT INTO users(first_name,last_name,role_id,tavern_id)
+VALUES ('Bilbo', 'Baggins', 1, 1),('Mr', 'Peanutbutter', 1, 2),('Gerald', 'The IIIrd', 1, 3), ('Emma', 'Watson', 1, 4), ('Rick', 'Sanchez', 1, 5), ('Robot', 'Beep-boop', 2, 1), ('Michael', 'Schoemacher', 3, 2), ('Jessica', 'Parker', 5,2), ('Andy', 'McGuier', 4, 3), ('Peter', 'Griffin', 3,4), ('Emily', 'Ma', 5,5), ('James', 'Blunt', 4,5);
+
+ALTER TABLE taverns ADD FOREIGN KEY(owner_id) references users(user_id)
+
+CREATE TABLE states 
 (
-    role_id INT NOT NULL AUTO_INCREMENT,
-    role_name VARCHAR(250) NOT NULL,
-    description VARCHAR(3500) NOT NULL,
-    primary key(role_id)
+    state_id INT NOT NULL AUTO_INCREMENT,
+    state_name VARCHAR(100),
+    primary key(state_id)
 );
+
+INSERT INTO states(state_name)
+VALUES ('Alabama'),('Alaska'),('American Samoa'),('Arizona'),('Arkansas'),('California'),('Colorado'),('Connecticut'),('Delaware'),('District Of Columbia'),('Federated States Of Micronesia'),('Florida'),('Georgia'),('Guam'),('Hawaii'),('Idaho'),('Illinois'),('Indiana'),('Iowa'),('Kansas'),('Kentucky'),('Louisiana'),('Maine'),('Marshall Islands'),('Maryland'),('Massachusetts'),('Michigan'),('Minnesota'),('Mississippi'),('Missouri'),('Montana'),('Nebraska'),('Nevada'),('New Hampshire'),('New Jersey'),('New Mexico'),('New York'),('North Carolina'),('North Dakota'),('Northern Mariana Islands'),('Ohio'),('Oklahoma'),('Oregon'),('Palau'),('Pennsylvania'),('Puerto Rico'),('Rhode Island'),('South Carolina'),('South Dakota'),('Tennessee'),('Texas'),('Utah'),('Vermont'),('Virgin Islands'),('Virginia'),('Washington'),('West Virginia'),('Wisconsin'),('Wyoming');
 
 CREATE TABLE locations
 (
@@ -38,12 +59,11 @@ CREATE TABLE locations
     primary key(location_id)
 );
 
-CREATE TABLE states 
-(
-    state_id INT NOT NULL AUTO_INCREMENT,
-    state_name VARCHAR(100),
-    primary key(state_id)
-);
+INSERT INTO locations(street_name,city,state_id)
+VALUES ('4 Johnson Ln', 'Voorhees', 35), ('5 Evergreen Blvd', 'Boston', 26), ('1200 Marlton Pike E', 'Cherry Hill', 35), ('6000 Atrium Way', 'Gibbsboro twp', 12), ('1 Big Bunny cir', 'Los Angeles', 6), ('222 Freezing ave', 'Lumberton', 2);
+
+ALTER TABLE taverns ADD FOREIGN KEY(location_id) references locations(location_id)
+
 
 -- CREATE TABLE basement_rats
 -- (
@@ -61,6 +81,9 @@ CREATE TABLE supplies
     primary key(supply_id)
 );
 
+INSERT INTO supplies(supply_name, unit)
+VALUES ('Corona', 'bottle(s)'), ('Golden Monkey', 'bottle(s)'), ('Tall Glass', 'piece(s)'), ('Metal sponge', 'case(s)'), ('Chair', 'pair(s)'), ('CO2', 'tank(s)'), ('Limes', 'lbs'), ('Absinth', 'oz'), ('Chicken', 'lbs');
+
 CREATE TABLE inventory 
 (
     inventory_id INT NOT NULL AUTO_INCREMENT,
@@ -70,6 +93,9 @@ CREATE TABLE inventory
     date_updated DATE,
     primary key(inventory_id)
 );
+
+INSERT INTO inventory(tavern_id, supply_id, current_count)
+VALUES (1, 1, 49), (2, 2, 23), (3, 3, 100), (4, 4, 35), (5, 6, 53);
 
 CREATE TABLE shipments
 (
@@ -81,6 +107,16 @@ CREATE TABLE shipments
     primary key(shipment_id)
 );
 
+INSERT INTO shipments(tavern_id, supply_id, amt_received, date_of_shipping)
+VALUES (1, 1, 10, '2020-02-04'), (2,3,30, '2020-02-03'), (3, 4,15, '2020-02-03'), (4, 6, 2, '2020-02-05'), (5, 7, 1, '2020-02-01');
+
+CREATE TABLE service_status
+(
+    status_id INT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(250),
+    primary key(status_id)
+);
+
 CREATE TABLE services
 (
     service_id INT NOT NULL AUTO_INCREMENT,
@@ -88,13 +124,6 @@ CREATE TABLE services
     status_id BIT NOT NULL references service_status(status_id),
     date_of_status_update DATE,
     primary key(service_id)
-);
-
-CREATE TABLE service_status
-(
-    status_id INT NOT NULL AUTO_INCREMENT,
-    name VARCHAR(250),
-    primary key(status_id)
 );
 
 CREATE TABLE sales
@@ -142,27 +171,3 @@ CREATE TABLE guest_class_link
     class_name_id VARCHAR(250) references class_names(class_name_id),
     primary key(link_id)
 );
-
-INSERT INTO states(state_name)
-VALUES ("Alabama"),("Alaska"),("American Samoa"),("Arizona"),("Arkansas"),("California"),("Colorado"),("Connecticut"),("Delaware"),("District Of Columbia"),("Federated States Of Micronesia"),("Florida"),("Georgia"),("Guam"),("Hawaii"),("Idaho"),("Illinois"),("Indiana"),("Iowa"),("Kansas"),("Kentucky"),("Louisiana"),("Maine"),("Marshall Islands"),("Maryland"),("Massachusetts"),("Michigan"),("Minnesota"),("Mississippi"),("Missouri"),("Montana"),("Nebraska"),("Nevada"),("New Hampshire"),("New Jersey"),("New Mexico"),("New York"),("North Carolina"),("North Dakota"),("Northern Mariana Islands"),("Ohio"),("Oklahoma"),("Oregon"),("Palau"),("Pennsylvania"),("Puerto Rico"),("Rhode Island"),("South Carolina"),("South Dakota"),("Tennessee"),("Texas"),("Utah"),("Vermont"),("Virgin Islands"),("Virginia"),("Washington"),("West Virginia"),("Wisconsin"),("Wyoming");
-
-INSERT INTO locations(street_name,city,state_id)
-VALUES ("4 Johnson Ln", "Voorhees", 35), ("5 Evergreen Blvd", "Boston", 26), ("1200 Marlton Pike E", "Cherry Hill", 35), ("6000 Atrium Way", "Gibbsboro twp", 12), ("1 Big Bunny cir", "Los Angeles", 6), ("222 Freezing ave", "Lumberton", 2);
-
-INSERT INTO roles(role_name, description) 
-VALUES ("Owner", "Be the boss, watch everything, manage employees, count money, get free drinks at the bar"), ("Bartender", "Sell drinks, watch the counter, clean glasses and the bar stand"), ("Waitor", "Make sure customers are satisfied, carry plates and drinks"), ("Busser", "Clean the tables, wash the dishes, mop the floor"), ("Bodyguard", "Kick people out if necessary"), ("Room manager", "Check-ins, check-outs, room service and other services");
-
-INSERT INTO users(first_name,last_name,role_id,tavern_id)
-VALUES ("Bilbo", "Baggins", 1, 1),("Mr", "Peanutbutter", 1, 2),("Gerald", "The IIIrd", 1, 3), ("Emma", "Watson", 1, 4), ("Rick", "Sanchez", 1, 5), ("Robot", "Beep-boop", 2, 1), ("Michael", "Schoemacher", 3, 2), ("Jessica", "Parker", 5,2), ("Andy", "McGuier", 4, 3), ("Peter", "Griffin", 3,4), ("Emily", "Ma", 5,5), ("James", "Blunt", 4,5);
-
-INSERT INTO taverns(name,location_id, owner_id, floors_quantity)
-VALUES ("Moe's", 1, 1, 2), ("The Bada Bing!", 2, 2, 2), ("The Drunken Clam", 3, 3, 1), ("Paddy’s Pub", 4, 4, 3), ("The Peach Pit After Dark", 5, 5, 2);
-
-INSERT INTO supplies(supply_name, unit)
-VALUES ("Corona", "bottle(s)"), ("Golden Monkey", "bottle(s)"), ("Tall Glass", "piece(s)"), ("Metal sponge", "case(s)"), ("Chair", "pair(s)"), ("CO2", "tank(s)"), ("Limes", "lbs"), ("Absinth", "oz"), ("Chicken", "lbs");
-
-INSERT INTO inventory(tavern_id, supply_id, current_count)
-VALUES (1, 1, 49), (2, 2, 23), (3, 3, 100), (4, 4, 35), (5, 6, 53);
-
-INSERT INTO shipments(tavern_id, supply_id, amt_received, date_of_shipping)
-VALUES (1, 1, 10, "2020-02-04"), (2,3,30, "2020-02-03"), (3, 4,15, "2020-02-03"), (4, 6, 2, "2020-02-05"), (5, 7, 1, "2020-02-01");
