@@ -38,7 +38,7 @@ CREATE TABLE users
 INSERT INTO users(first_name,last_name,role_id,tavern_id)
 VALUES ('Bilbo', 'Baggins', 1, 1),('Mr', 'Peanutbutter', 1, 2),('Gerald', 'The IIIrd', 1, 3), ('Emma', 'Watson', 1, 4), ('Rick', 'Sanchez', 1, 5), ('Robot', 'Beep-boop', 2, 1), ('Michael', 'Schoemacher', 3, 2), ('Jessica', 'Parker', 5,2), ('Andy', 'McGuier', 4, 3), ('Peter', 'Griffin', 3,4), ('Emily', 'Ma', 5,5), ('James', 'Blunt', 4,5);
 
-ALTER TABLE taverns ADD FOREIGN KEY(owner_id) references users(user_id)
+ALTER TABLE taverns ADD FOREIGN KEY(owner_id) references users(user_id);
 
 CREATE TABLE states 
 (
@@ -62,7 +62,7 @@ CREATE TABLE locations
 INSERT INTO locations(street_name,city,state_id)
 VALUES ('4 Johnson Ln', 'Voorhees', 35), ('5 Evergreen Blvd', 'Boston', 26), ('1200 Marlton Pike E', 'Cherry Hill', 35), ('6000 Atrium Way', 'Gibbsboro twp', 12), ('1 Big Bunny cir', 'Los Angeles', 6), ('222 Freezing ave', 'Lumberton', 2);
 
-ALTER TABLE taverns ADD FOREIGN KEY(location_id) references locations(location_id)
+ALTER TABLE taverns ADD FOREIGN KEY(location_id) references locations(location_id);
 
 
 -- CREATE TABLE basement_rats
@@ -77,6 +77,7 @@ CREATE TABLE supplies
 (
     supply_id INT NOT NULL AUTO_INCREMENT,
     supply_name VARCHAR(250) NOT NULL,
+    retail_price DECIMAL(10,2),
     unit VARCHAR(20) NOT NULL,
     primary key(supply_id)
 );
@@ -121,22 +122,59 @@ CREATE TABLE services
 (
     service_id INT NOT NULL AUTO_INCREMENT,
     name VARCHAR(250),
-    status_id BIT NOT NULL references service_status(status_id),
+    retail_price DECIMAL(10,2),
+    status_id INT NOT NULL references service_status(status_id),
     date_of_status_update DATE,
     primary key(service_id)
 );
 
-CREATE TABLE sales
+CREATE TABLE supply_trans_link
+(
+    supply_sale_id INT NOT NULL AUTO_INCREMENT,
+    supply_id INT NOT NULL references supplies(supply_id),
+    guest_id INT NOT NULL references guests(guest_id),
+    tavern_id INT NOT NULL references taverns(tavern_id),
+    primary key(supply_sale_id)
+);
+
+CREATE TABLE service_trans_link
+(
+    service_sale_id INT NOT NULL AUTO_INCREMENT,
+    service_id INT NOT NULL references services(service_id),
+    guest_id INT NOT NULL references guests(guest_id),
+    tavern_id INT NOT NULL references taverns(tavern_id),
+    primary key(service_sale_id)
+);
+
+CREATE TABLE service_sales
 (
     sale_id INT NOT NULL AUTO_INCREMENT,
     tavern_id INT NOT NULL references taverns(tavern_id),
     service_id INT NOT NULL references services(service_id),
+    guest_id INT NOT NULL references users(user_id),
+    primary key(sale_id)
+);
+
+CREATE TABLE supply_sales
+(
+    sale_id INT NOT NULL AUTO_INCREMENT,
+    tavern_id INT NOT NULL references taverns(tavern_id),
+    supply_id INT NOT NULL references supplies(supply_id),
     guest_id INT NOT NULL references users(user_id),
     price DECIMAL(10,2),
     amount INT NOT NULL,
     date_of_purchase DATE,
     primary key(sale_id)
 );
+
+CREATE TABLE guest_notes
+(
+    note_id INT NOT NULL AUTO_INCREMENT,
+    guest_id INT NOT NULL,
+    note_text VARCHAR(3500)
+    note_date DATE,
+    primary key(note_id)
+)
 
 CREATE TABLE guests
 (
@@ -149,6 +187,8 @@ CREATE TABLE guests
     primary key(guest_id)
 );
 
+ALTER TABLE guest_notes ADD FOREIGN KEY(guest_id) references gusets(guest_id);
+
 CREATE TABLE class_names
 (
     class_name_id INT NOT NULL AUTO_INCREMENT,
@@ -156,12 +196,20 @@ CREATE TABLE class_names
     primary key(class_name_id)
 );
 
+INSERT INTO class_names(class_name_name)
+VALUES ('Mage', 'Fighter', 'Witcher', 'Human', 'Ghost', 'Zombie', 'ManBearPig')
+
 CREATE TABLE gst_statuses
 (
     gst_status_id INT NOT NULL AUTO_INCREMENT,
     gst_status_name VARCHAR(250),
     primary key(gst_status_id)
 );
+
+INSERT INTO gst_statuses(gst_status_name)
+VALUES ('sick', 'fine', 'angry', 'hungry', 'raging', 'placid', 'happy', 'drunk');
+
+ALTER TABLE guests ADD FOREIGN KEY(gst_status_id) references gst_statuses(gst_status_id);
 
 CREATE TABLE guest_class_link
 (
