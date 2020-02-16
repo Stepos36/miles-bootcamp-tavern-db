@@ -359,3 +359,23 @@ VALUES
 (2,10,3),
 (3,11,2),
 (4,80,4);
+
+CREATE TABLE rooms
+(
+    room_unique_num INT NOT NULL IDENTITY(1,1),
+    tavern_rooom_name VARCHAR(100) NOT NULL,
+    status_available BOOLEAN,
+    status_clean BOOLEAN
+)
+
+CREATE TABLE room_link_table
+(
+    room_link_id INT NOT NULL IDENTITY(1,1),
+    room_unique_num INT NOT NULL references rooms(room_unique_num),
+    tavern_id INT NOT NULL references taverns(tavern_id),
+    service_sale_id INT NOT NULL references service_sales(service_sale_id)
+    date_in DATE,
+    date_out DATE,
+    rate DECIMAL(10,2)
+)
+
