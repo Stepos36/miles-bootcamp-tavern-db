@@ -137,7 +137,13 @@ CREATE TABLE locations
 );
 
 INSERT INTO locations(street_name,city,state_id)
-VALUES ('4 Johnson Ln', 'Voorhees', 35), ('5 Evergreen Blvd', 'Boston', 26), ('1200 Marlton Pike E', 'Cherry Hill', 35), ('6000 Atrium Way', 'Gibbsboro twp', 12), ('1 Big Bunny cir', 'Los Angeles', 6), ('222 Freezing ave', 'Lumberton', 2);
+VALUES 
+('4 Johnson Ln', 'Voorhees', 35),
+('5 Evergreen Blvd', 'Boston', 26),
+('1200 Marlton Pike E', 'Cherry Hill', 35),
+('6000 Atrium Way', 'Gibbsboro twp', 12),
+('1 Big Bunny cir', 'Los Angeles', 6),
+('222 Freezing ave', 'Lumberton', 2);
 
 ALTER TABLE taverns ADD FOREIGN KEY(location_id) references locations(location_id);
 
@@ -159,17 +165,17 @@ CREATE TABLE supplies
     primary key(supply_id)
 );
 
-INSERT INTO supplies(supply_name, unit)
+INSERT INTO supplies(supply_name, unit, retail_price)
 VALUES 
-('Corona', 'bottle(s)'), 
-('Golden Monkey', 'bottle(s)'), 
-('Tall Glass', 'piece(s)'), 
-('Metal sponge', 'case(s)'), 
-('Chair', 'pair(s)'), 
-('CO2', 'tank(s)'), 
-('Limes', 'lbs'), 
-('Absinth', 'oz'), 
-('Chicken', 'lbs');
+('Corona', 'bottle(s)', 7.10), 
+('Golden Monkey', 'bottle(s)', 8.50), 
+('Tall Glass', 'piece(s)', 5.50), 
+('Metal sponge', 'case(s)', 2.30), 
+('Chair', 'pair(s)', 20.55), 
+('CO2', 'tank(s)', 92.40), 
+('Limes', 'lbs', 7.30), 
+('Absinth', 'oz', 4.20), 
+('Chicken', 'lbs', 7.50);
 
 CREATE TABLE inventory 
 (
@@ -284,11 +290,26 @@ CREATE TABLE supply_sales
     tavern_id INT NOT NULL references taverns(tavern_id),
     supply_id INT NOT NULL references supplies(supply_id),
     guest_id INT NOT NULL references users(user_id),
-    total DECIMAL(10,2),
     amount INT NOT NULL,
+    total DECIMAL(10,2),
     date_of_purchase DATE,
     primary key(sale_id)
 );
+
+INSERT INTO supply_sales(tavern_id, supply_id, guest_id, amount, total, date_of_purchase)
+VALUES
+(1,1,1,10,71.00,'2020-02-10'),
+(2,2,2,5,42.50,'2020-02-06'),
+(3,3,3,15,82.50,'2020-02-01'),
+(4,4,4,20,46.00,'2020-02-11'),
+(5,5,2,2,41.10,'2020-02-11'),
+(2,7,2,2,14.60,'2020-02-11'),
+(2,7,2,10,73.00,'2020-02-11'),
+(2,7,2,10,73.00,'2020-02-12'),
+(5,8,4,5,21.00,'2020-02-07'),
+(4,1,5,20,142.00,'2020-02-08'),
+(1,2,3,10,85.00,'2020-02-02'),
+(4,1,3,9,76.50,'2020-02-03');
 
 CREATE TABLE guest_notes
 (
@@ -354,7 +375,7 @@ VALUES
 (2,30,4),
 (3,3,3),
 (4,15,6),
-(5,100,7)
+(5,100,7),
 (1,2,6),
 (2,10,3),
 (3,11,2),
@@ -363,11 +384,25 @@ VALUES
 CREATE TABLE rooms
 (
     room_unique_num INT NOT NULL IDENTITY(1,1),
-    tavern_rooom_name VARCHAR(100) NOT NULL,
+    tavern_room_name VARCHAR(100) NOT NULL,
     status_available BOOLEAN,
     status_clean BOOLEAN,
+    cost_per_night DECIMAL(10,2),
     primary key(room_unique_num)
 )
+
+INSERT INTO rooms(tavern_room_name, status_available, status_clean, cost_per_night) 
+VALUES
+('Presidential Lux', 1, 1, 1000.00),
+('Penthouse', 1, 0, 450.99),
+('Room 100', 1, 1, 60.00),
+('Room 101', 1, 1, 60.00),
+('Room 102', 1, 1, 60.00),
+('Room 300', 1, 1, 60.00),
+('Room 400', 1, 1, 60.00),
+('Room 404', 0, 0, 60.00),
+('Room 500', 1, 1, 60.00),
+('Rooftop loft', 1, 0, 357.99),
 
 CREATE TABLE room_link_table
 (
